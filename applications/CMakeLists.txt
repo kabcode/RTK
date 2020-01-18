@@ -29,7 +29,7 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${RTK_INSTALL_LIB_DIR}")
 if (NOT ITK_DIR)
   set(ITK_DIR ${ITK_BINARY_DIR}/CMakeTmp)
 endif()
-find_package(ITK REQUIRED COMPONENTS ${ITK_MODULE_RTK_DEPENDS})
+find_package(ITK REQUIRED COMPONENTS ${ITK_MODULE_RTK_DEPENDS} ITKIONRRD)
 include(${ITK_USE_FILE})
 
 #-----------------------------------------------------------------------------
