@@ -1,9 +1,14 @@
+set(ITKCudaCommon_CudaSRC
+	itkCudaGradientImageFilter.cu
+)
+
 set(ITKCudaCommon_SRC
     itkCudaContextManager.cxx
     itkCudaDataManager.cxx
     itkCudaKernelManager.cxx
     itkCudaUtil.cxx
     itkCudaMemoryProbe.cxx
+	${ITKCudaCommon_CudaSRC}
   )
 
 include_directories(${CUDA_INCLUDE_DIRS})

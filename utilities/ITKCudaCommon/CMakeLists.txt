@@ -37,3 +37,8 @@ if(NOT ITK_SOURCE_DIR)
 else()
   itk_module_impl()
 endif()
+
+option(BUILD_CUDA_TESTS "Build the tests for ITKCudaCommon." OFF)
+if(BUILD_CUDA_TESTS)
+  add_subdirectory(test)
+endif()

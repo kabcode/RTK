@@ -1,0 +1,19 @@
+#ifndef itkCudaGradientImageFilter_hcu
+#define itkCudaGradientImageFilter_hcu
+
+
+void
+CUDA_gradient(
+	float *dev_in,
+	unsigned int* size,
+	float* spacing,
+	float* direction,
+	unsigned dimension,
+	unsigned boundaryCondition,
+	float *dev_out
+);
+
+
+
+
+#endif
