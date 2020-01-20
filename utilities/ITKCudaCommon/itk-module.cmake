@@ -7,6 +7,7 @@ if(ITK_SOURCE_DIR)
     EXCLUDE_FROM_DEFAULT
     DEPENDS
       ITKCommon
+	  ITKImageGradient
 	  ITKRegistrationCommon
     TEST_DEPENDS
       ITKTestKernel

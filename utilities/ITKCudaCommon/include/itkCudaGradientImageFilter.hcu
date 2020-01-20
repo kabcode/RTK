@@ -1,18 +1,31 @@
 #ifndef itkCudaGradientImageFilter_hcu
 #define itkCudaGradientImageFilter_hcu
 
+#include "itkCudaUtil.h"
+/*
+class CudaGradient
+{
+public:
+  CudaGradient() {};
+  ~CudaGradient() {};
+
+  __declspec(dllexport) void  CUDA_Gradient();
+};
+*/
 
 void
+ITKCudaCommon_EXPORT
 CUDA_gradient(
-	float *dev_in,
+  /*
+	float* dev_in,
 	unsigned int* size,
 	float* spacing,
 	float* direction,
-	unsigned dimension,
-	unsigned boundaryCondition,
-	float *dev_out
+	unsigned int dimension,
+	unsigned int boundaryCondition,
+	float* dev_out
+  */
 );
-
 
 
 

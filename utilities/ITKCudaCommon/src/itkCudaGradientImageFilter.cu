@@ -1,9 +1,9 @@
 #include "itkCudaGradientImageFilter.hcu"
 
 #include "rtkCudaUtilities.hcu"
-#include "cuda.h"
-#include "cuda_runtime.h"
 #include "device_launch_parameters.h"
+
+
 
 __constant__ int3 c_Size;
 __constant__ float3 c_Spacing;
@@ -14,13 +14,15 @@ __global__ void gradient_kernel_3d(cudaTextureObject_t in, float* grad, const in
 
 void
 CUDA_gradient(
+  /*
 	float* dev_in,
 	unsigned int* size,
 	float* spacing,
 	float* direction,
-	unsigned dimension,
-	unsigned boundaryCondition,
-	float* dev_out)
+	unsigned int dimension,
+	unsigned int boundaryCondition,
+	float* dev_out   */
+)
 {
 	
 	auto addressmode = cudaTextureAddressMode(boundaryCondition);

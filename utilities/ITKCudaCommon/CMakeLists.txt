@@ -38,7 +38,5 @@ else()
   itk_module_impl()
 endif()
 
-option(BUILD_CUDA_TESTS "Build the tests for ITKCudaCommon." OFF)
-if(BUILD_CUDA_TESTS)
-  add_subdirectory(test)
-endif()
+
+add_subdirectory(test)

@@ -157,7 +157,7 @@ template <class TElement>
 void
 CudaReduction<TElement>::ReleaseGPUInputBuffer()
 {
-  if (m_CudaDataManager == (CudaDataPointer)NULL)
+  if (m_CudaDataManager == (CudaDataPointer) nullptr)
   {
     return;
   }

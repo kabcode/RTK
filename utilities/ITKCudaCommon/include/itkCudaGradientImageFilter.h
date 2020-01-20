@@ -22,6 +22,7 @@
 #include "itkCudaImageToImageFilter.h"
 #include "itkCudaUtil.h"
 #include "itkCudaKernelManager.h"
+#include "itkCudaGradientImageFilter.hcu"
 
 enum class BoundaryConditions {
   ZeroFluxNeumann,
@@ -103,7 +104,7 @@ namespace itk
 
     private:
         bool m_UseImageSpacing;
-        unsigned int m_UnsignedBoundaryCondition;
+        BoundaryConditions m_CudaBoundaryCondition;
 
     }; // end of class
 

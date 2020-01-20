@@ -22,7 +22,7 @@
 #include "itkCudaGradientImageFilter.h"
 #include "itkCudaGradientImageFilter.hcu"
 
-#include "itkConstantBoundaryCondition.h"
+#include "itkImageBoundaryCondition.h"
 
 namespace itk
 {
@@ -32,7 +32,7 @@ namespace itk
     CudaGradientImageFilter() :
     m_UseImageSpacing(true)
     {
-        m_UnsignedBoundaryCondition = BoundaryCondition::ZeroFluxNeumann; // default is ZeroFluxNeumannBoundaryCondition
+      m_CudaBoundaryCondition = BoundaryConditions::ZeroFluxNeumann; // default is ZeroFluxNeumannBoundaryCondition
     }
 
     template <typename TInputImage, typename TOperatorValueType, typename TOutputValueType, typename TOutputImageType>
@@ -40,13 +40,13 @@ namespace itk
     ChangeBoundaryCondition(ImageBoundaryCondition<TInputImage>* boundaryCondition)
     {
         this->OverrideBoundaryCondition(boundaryCondition);
-        if(dynamic_cast<ZeroFluxNeumannBoundaryCondition<TInputImage>*>(boundaryCondition))
+        if (dynamic_cast<ZeroFluxNeumannBoundaryCondition<TInputImage>*>(boundaryCondition))
         {
-            m_UnsignedBoundaryCondition = 1;
+          m_CudaBoundaryCondition = BoundaryConditions::ZeroFluxNeumann;
         }
-        if(dynamic_cast<ConstantBoundaryCondition<TInputImage>*>(boundaryCondition))
+        if (dynamic_cast<ConstantBoundaryCondition<TInputImage>*>(boundaryCondition))
         {
-            m_UnsignedBoundaryCondition = 3;
+          m_CudaBoundaryCondition = BoundaryConditions::Constant;
         }
     }
 
@@ -57,7 +57,8 @@ namespace itk
     {
         //GPUSuperclass::PrintSelf(os, indent);
         os << "UseImageSpacing: " << m_UseImageSpacing << std::endl;
-        os << "BoundaryCondition: " << m_UnsignedBoundaryCondition << std::endl;
+        os << "BoundaryCondition: " <<
+          ((m_CudaBoundaryCondition==BoundaryConditions::ZeroFluxNeumann)? "ZeroFluxNeumann" : "Constant") << std::endl;
     }
 
     template <typename TInputImage, typename TOperatorValueType, typename TOutputValueType, typename TOutputImageType>
@@ -109,14 +110,26 @@ namespace itk
             }
         }
 
+        unsigned int boundaryCondition = 1;
+        if (m_CudaBoundaryCondition == BoundaryConditions::ZeroFluxNeumann)
+        {
+          boundaryCondition = 1;
+        }
+        if (m_CudaBoundaryCondition == BoundaryConditions::Constant)
+        {
+          boundaryCondition = 3;
+        }
+
         float *pin = *(float**)(this->GetInput()->GetCudaDataManager()->GetGPUBufferPointer());
         auto outputimage = this->GetOutput();
         float *pout = *(float**)(outputimage->GetCudaDataManager()->GetGPUBufferPointer());
 
-        CUDA_gradient(pin, outputSize, outputSpacing, outputDirection, OutputImageDimension, m_UnsignedBoundaryCondition, pout);
-
+        CUDA_gradient(pin, outputSize, outputSpacing, outputDirection, OutputImageDimension, boundaryCondition, pout);
     }
 
+
 } // end namespace rtk
+
+
 
 #endif
