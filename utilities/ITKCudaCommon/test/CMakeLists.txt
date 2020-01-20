@@ -11,11 +11,9 @@
   set(ITKCudaCommon-tests
     # itkCudaImageTest.cxx
     # itkCudaReductionTest.cxx
-	itkCudaGradientImageFilterTest.cxx
   )
 
   CreateTestDriver(ITKCudaCommon "${ITKCudaCommon-Test_LIBRARIES}" "${ITKCudaCommon-tests}")
   # itk_add_test(NAME itkCudaImageTest COMMAND ITKCudaCommonTestDriver itkCudaImageTest)
   # itk_add_test(NAME itkCudaReductionTest COMMAND ITKCudaCommonTestDriver itkCudaReductionTest)
-  itk_add_test(NAME itkCudaGradientImageFilterTest COMMAND ITKCudaCommonTestDriver itkCudaGradientImageFilterTest)
 

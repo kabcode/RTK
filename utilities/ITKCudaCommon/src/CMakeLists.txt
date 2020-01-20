@@ -1,6 +1,3 @@
-set(ITKCudaCommon_CudaSRC
-	itkCudaGradientImageFilter.cu
-)
 
 set(ITKCudaCommon_SRC
     itkCudaContextManager.cxx
@@ -8,10 +5,7 @@ set(ITKCudaCommon_SRC
     itkCudaKernelManager.cxx
     itkCudaUtil.cxx
     itkCudaMemoryProbe.cxx
-	${ITKCudaCommon_CudaSRC}
   )
-
-message(STATUS "Does it exist (ITKImageGradient): ${ITKImageGradient_LIBRARIES}.")
 
 include_directories(${CUDA_INCLUDE_DIRS})
 include_directories(${ITKCudaCommon_SOURCE_DIR}/include)
@@ -20,7 +14,6 @@ add_library(ITKCudaCommon ${ITK_LIBRARY_BUILD_TYPE} ${ITKCudaCommon_SRC})
 target_link_libraries(ITKCudaCommon
 	LINK_PUBLIC
 		${ITKCommon_LIBRARIES}
-		${ITKImageGradient_LIBRARIES}
 		${CUDA_CUDA_LIBRARY}
 		${CUDA_LIBRARIES})
 

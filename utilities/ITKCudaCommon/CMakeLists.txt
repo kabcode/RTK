@@ -38,5 +38,4 @@ else()
   itk_module_impl()
 endif()
 
-
 add_subdirectory(test)
