@@ -33,7 +33,7 @@ CudaReduction<TElement>::CudaReduction()
 {
   /*** Prepare Cuda GPU program ***/
   m_CudaKernelManager = CudaKernelManager::New();
-  m_CudaDataManager = NULL;
+  m_CudaDataManager = nullptr;
 }
 template <class TElement>
 CudaReduction<TElement>::~CudaReduction()
@@ -157,7 +157,7 @@ template <class TElement>
 void
 CudaReduction<TElement>::ReleaseGPUInputBuffer()
 {
-  if (m_CudaDataManager == (CudaDataPointer)NULL)
+  if (m_CudaDataManager == (CudaDataPointer)nullptr)
   {
     return;
   }

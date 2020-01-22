@@ -1,3 +1,4 @@
+message(STATUS "BUILD_CUDA_KERNEL: ${_BUILD_CUDA_KERNEL}")
 if(NOT _BUILD_CUDA_KERNEL)
   find_package(CUDA REQUIRED)
   if(NOT ${CUDA_FOUND})
@@ -64,7 +65,7 @@ macro(write_cuda_ptx_kernel_to_file NAMESPACE PTX_FILE GPUFILTER_NAME GPUFILTER_
     "#include \"${NAMESPACE}${GPUFILTER_NAME}.h\"
     namespace ${NAMESPACE}
     {
-    std::string ${GPUFILTER_KERNELNAME}::GetCudaPTXSource()
+	std::string ITK_EXPORT ${GPUFILTER_KERNELNAME}::GetCudaPTXSource()
     {
       std::stringstream s;
       ${${GPUFILTER_KERNELNAME}_SourceString};
@@ -85,6 +86,6 @@ macro(write_cuda_ptx_kernels GPUKernels)
     write_cuda_ptx_kernel_to_file(itk ${GPUKernel} ${KernelName} ${KernelName}Kernel "${KernelName}CudaKernel.cxx")
   endforeach()
 endmacro()
-
+message(STATUS "PTXKernels: ${PTXKernels}")
 write_cuda_ptx_kernels("${PTXKernels}")
 endif()
