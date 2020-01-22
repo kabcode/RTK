@@ -61,8 +61,6 @@ void
 CudaGradientImageFilter<TInputImage, TOperatorValueType, TOutputValueType, TOutputImageType>::
 GPUGenerateData()
 {
-  {
-
     unsigned int inputSize[OutputImageDimension];
     unsigned int outputSize[OutputImageDimension];
     float inputSpacing[OutputImageDimension];
@@ -120,9 +118,8 @@ GPUGenerateData()
     auto outputimage = this->GetOutput();
     float *pout = *(float**)(outputimage->GetCudaDataManager()->GetGPUBufferPointer());
 
-    CUDA_gradient(outputSize);
+    CUDA_gradient(pin, outputSize, outputSpacing, outputDirection, OutputImageDimension, boundaryCondition, pout);
   }
-}
 
 } // end namespace rtk
 

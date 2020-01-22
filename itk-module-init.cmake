@@ -15,6 +15,7 @@ else()
   set(RTK_USE_CUDA_DEFAULT OFF)
 endif()
 option(RTK_USE_CUDA "Use CUDA for RTK" ${RTK_USE_CUDA_DEFAULT})
+message(STATUS "RTK_USE_CUDA is ${RTK_USE_CUDA}.")
 
 if(RTK_USE_CUDA)
   if(NOT CUDA_FOUND)

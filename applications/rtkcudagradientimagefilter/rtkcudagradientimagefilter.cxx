@@ -16,18 +16,28 @@
  *
  *=========================================================================*/
 
-#ifndef rtkCudaGradientImageFilter_hcu
-#define rtkCudaGradientImageFilter_hcu
+#include "rtkforwardprojections_ggo.h"
+#include "rtkGgoFunctions.h"
 
-#include "RTKExport.h"
-
-void RTK_EXPORT CUDA_gradient(
-  float* dev_in,
-  unsigned int* size,
-  float* spacing,
-  float* direction,
-  unsigned int dimension,
-  unsigned int boundaryCondition,
-  float* dev_out);
-
+#ifdef RTK_USE_CUDA
+	#include "rtkCudaGradientImageFilter.h"
 #endif
+
+#include <itkImageFileReader.h>
+#include <itkImageFileWriter.h>
+
+int main(int argc, char * argv[])
+{
+  GGO(rtkforwardprojections, args_info);
+
+  using OutputPixelType = float;
+  constexpr unsigned int Dimension = 3;
+
+  #ifdef RTK_USE_CUDA
+    using OutputImageType = itk::CudaImage< OutputPixelType, Dimension >;
+  #else
+    using OutputImageType = itk::Image< OutputPixelType, Dimension >;
+  #endif
+  
+  return EXIT_SUCCESS;
+}

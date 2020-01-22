@@ -189,6 +189,7 @@ endif()
 #=========================================================
 # ITKCudaCommon
 #=========================================================
+message(STATUS "RTK_USE_CUDA is ${RTK_USE_CUDA}.")
 if(RTK_USE_CUDA)
   if(NOT TARGET ITKCudaCommon)
     add_subdirectory(utilities/ITKCudaCommon)
