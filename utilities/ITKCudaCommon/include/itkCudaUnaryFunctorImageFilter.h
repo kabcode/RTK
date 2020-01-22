@@ -36,7 +36,7 @@ template <class TInputImage,
           class TOutputImage,
           class TFunction,
           class TParentImageFilter = InPlaceImageFilter<TInputImage, TOutputImage>>
-class ITKCudaCommon_EXPORT CudaUnaryFunctorImageFilter
+class ITK_EXPORT CudaUnaryFunctorImageFilter
   : public CudaInPlaceImageFilter<TInputImage, TOutputImage, TParentImageFilter>
 {
 public:

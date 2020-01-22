@@ -38,7 +38,7 @@ namespace itk
 itkCudaKernelClassMacro(CudaReductionKernel);
 
 template <class TElement>
-class ITKCudaCommon_EXPORT CudaReduction : public Object
+class ITK_EXPORT CudaReduction : public Object
 {
 public:
   /** Standard class type alias. */

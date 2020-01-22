@@ -36,7 +36,7 @@ namespace itk
  * \ingroup ITKCudaCommon
  */
 template <class TPixel, unsigned int VImageDimension = 2>
-class ITKCudaCommon_EXPORT CudaImage : public Image<TPixel, VImageDimension>
+class ITK_EXPORT CudaImage : public Image<TPixel, VImageDimension>
 {
 public:
   using Self = CudaImage;

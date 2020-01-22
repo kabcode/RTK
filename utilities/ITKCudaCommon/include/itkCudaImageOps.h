@@ -32,7 +32,7 @@ itkCudaKernelClassMacro(CudaImageOpsKernel);
  *
  * \ingroup ITKCudaCommon
  */
-class ITKCudaCommon_EXPORT CudaImageOps
+class ITK_EXPORT CudaImageOps
 {
 public:
   /** Standard class type alias. */
