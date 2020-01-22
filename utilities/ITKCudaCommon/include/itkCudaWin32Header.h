@@ -25,7 +25,7 @@
 #    define ITKCudaCommon_EXPORT __declspec(dllexport)
 #  else
 #    define ITKCudaCommon_EXPORT __declspec(dllimport)
-#  endif /* ITK_EXPORT */
+#  endif /* ITKCudaCommon_EXPORT */
 #else
 /* unix needs nothing */
 #  define ITKCudaCommon_EXPORT
