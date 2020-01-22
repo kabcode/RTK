@@ -19,6 +19,8 @@
 #include "rtkforwardprojections_ggo.h"
 #include "rtkGgoFunctions.h"
 
+#include "itkCudaImage.h"
+
 #ifdef RTK_USE_CUDA
 	#include "rtkCudaGradientImageFilter.h"
 #endif
@@ -30,14 +32,16 @@ int main(int argc, char * argv[])
 {
   GGO(rtkforwardprojections, args_info);
 
-  using OutputPixelType = float;
+  using PixelType = float;
   constexpr unsigned int Dimension = 3;
+  using ImageType = itk::CudaImage< PixelType, Dimension >;
 
-  #ifdef RTK_USE_CUDA
-    using OutputImageType = itk::CudaImage< OutputPixelType, Dimension >;
-  #else
-    using OutputImageType = itk::Image< OutputPixelType, Dimension >;
-  #endif
+  auto InputImage = ImageType::New();
+
+  auto CudaGRadientImageFilter = rtk::CudaGradientImageFilter();
+  CudaGRadientImageFilter.SetInput(InputImage);
+
+
   
   return EXIT_SUCCESS;
 }

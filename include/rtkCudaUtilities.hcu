@@ -22,7 +22,7 @@
 #ifdef _WIN32
 #  include <cmath>
 #  define __CUDA_INTERNAL_COMPILATION__
-#  include <cuda_runtime.h>
+#  include <math_functions.h>
 #  undef __CUDA_INTERNAL_COMPILATION__
 #endif
 #include <cuda_runtime_api.h>
