@@ -1,4 +1,3 @@
-message(STATUS "BUILD_CUDA_KERNEL: ${_BUILD_CUDA_KERNEL}")
 if(NOT _BUILD_CUDA_KERNEL)
   find_package(CUDA REQUIRED)
   if(NOT ${CUDA_FOUND})
@@ -86,6 +85,6 @@ macro(write_cuda_ptx_kernels GPUKernels)
     write_cuda_ptx_kernel_to_file(itk ${GPUKernel} ${KernelName} ${KernelName}Kernel "${KernelName}CudaKernel.cxx")
   endforeach()
 endmacro()
-message(STATUS "PTXKernels: ${PTXKernels}")
+
 write_cuda_ptx_kernels("${PTXKernels}")
 endif()
