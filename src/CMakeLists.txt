@@ -87,6 +87,7 @@ if (RTK_USE_CUDA)
     rtkCudaFirstOrderKernels.cu
     rtkCudaForwardProjectionImageFilter.cu
     rtkCudaForwardWarpImageFilter.cu
+	rtkCudaGradientImageFilter.cu
     rtkCudaInterpolateImageFilter.cu
     rtkCudaLagCorrectionImageFilter.cu
     rtkCudaLaplacianImageFilter.cu

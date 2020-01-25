@@ -14,6 +14,7 @@ set(RTK_IO_DEPENDS
 
 set(RTK_DEPENDS
   ITKCommon
+  ITKImageGradient
   ITKConvolution
   ITKFFT
   ITKOptimizers
