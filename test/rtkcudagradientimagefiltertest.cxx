@@ -1,5 +1,7 @@
 #include "rtkTest.h"
 #include "rtkCudaGradientImageFilter.h"
+
+#include "itkImageFileReader.h"
 #include "itkConstantBoundaryCondition.h"
 
 /**
@@ -12,7 +14,7 @@
  */
 
 
-int main(int , char** )
+int main(int argc, char* argv[] )
 {
   constexpr unsigned int Dimension = 3;
   using PixelType = float;
@@ -24,14 +26,15 @@ int main(int , char** )
 
   auto CudaGradientImageFilter = CudaGradientImageFilterType::New();
 
-  itk::ConstantBoundaryCondition<ImageType> BoundaryCondition;
-  CudaGradientImageFilter->ChangeBoundaryCondition(&BoundaryCondition);
+  auto BoundaryCondition = new itk::ConstantBoundaryCondition<ImageType>();
+  CudaGradientImageFilter->ChangeBoundaryCondition(BoundaryCondition);
 
-  auto Inputimage = ImageType::New();
-  auto InputVolume = ImageType::New();
-  CudaGradientImageFilter->SetInput(0, Inputimage);
-  CudaGradientImageFilter->SetInput(1, InputVolume);
+  auto FileReader = itk::ImageFileReader<ImageType>::New();
+  FileReader->SetFileName(argv[1]);
+  auto InputVolume = FileReader->GetOutput();
+  InputVolume->Update();
 
+  CudaGradientImageFilter->SetInput(InputVolume);
   CudaGradientImageFilter->Print(std::cout);
   try
   {
@@ -42,8 +45,20 @@ int main(int , char** )
     EO.Print(std::cout);
     return EXIT_FAILURE;
   }
-  
-  
+
+  auto FileWriter = itk::ImageFileWriter<VectorImageType>::New();
+  FileWriter->SetInput(CudaGradientImageFilter->GetOutput());
+  FileWriter->SetFileName("OUTPUT.nrrd");
+
+  try
+  {
+    FileWriter->Update();
+  }
+  catch (itk::ExceptionObject& EO)
+  {
+    EO.Print(std::cout);
+    return EXIT_FAILURE;
+  }
 
   std::cout << "\n\nTest PASSED! " << std::endl;
 
