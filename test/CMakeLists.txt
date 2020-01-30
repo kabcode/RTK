@@ -95,8 +95,6 @@ rtk_add_cuda_test(rtkForwardProjectionCudaTest rtkforwardprojectiontest.cxx)
 rtk_add_test(rtkForwardAttenuatedProjectionTest rtkforwardattenuatedprojectiontest.cxx)
 rtk_add_test(rtkZengProjectionTest rtkzengforwardprojectiontest.cxx)
 
-rtk_add_cuda_test(rtkCudaGradientImageFilterTest rtkCudaGradientImageFilterTest.cxx)
-
 rtk_add_test(rtkGeometryFileTest rtkgeometryfiletest.cxx)
 
 rtk_add_test(rtkReg23ProjectionGeometryTest rtkTestReg23ProjectionGeometry.cxx)
