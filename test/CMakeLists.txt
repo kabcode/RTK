@@ -251,6 +251,8 @@ rtk_add_test(rtkI0EstimationTest rtkI0estimationtest.cxx)
 
 rtk_add_test(rtkSelectOneProjPerCycleTest rtkselectoneprojpercycletest.cxx)
 
+rtk_add_cuda_test(rtkCudaGradientImageFilterTest rtkcudagradientimagefiltertest.cxx)
+
 # We cannot compile these tests using CPU if GPU is present
 # This is because of rtkIterativeConeBeamReconstructionFilter
 if(NOT RTK_USE_CUDA)

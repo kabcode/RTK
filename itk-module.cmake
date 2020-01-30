@@ -10,10 +10,12 @@ set(RTK_IO_DEPENDS
   ITKIOTIFF
   ITKIONRRD
   ITKIOXML
+  ITKIONRRD
   )
 
 set(RTK_DEPENDS
   ITKCommon
+  ITKImageGradient
   ITKConvolution
   ITKFFT
   ITKOptimizers

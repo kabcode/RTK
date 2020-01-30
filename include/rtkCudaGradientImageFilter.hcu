@@ -16,12 +16,14 @@
  *
  *=========================================================================*/
 
-#ifndef rtkCudaGradientImageFilter_hcu
-#define rtkCudaGradientImageFilter_hcu
+#ifndef __rtkCudaGradientImageFilter_hcu
+#define __rtkCudaGradientImageFilter_hcu
 
 #include "RTKExport.h"
 
-void RTK_EXPORT CUDA_gradient(
+template <unsigned int TDimension>
+void RTK_EXPORT
+CUDA_gradient(
   float* dev_in,
   unsigned int* size,
   float* spacing,
@@ -29,5 +31,6 @@ void RTK_EXPORT CUDA_gradient(
   unsigned int dimension,
   unsigned int boundaryCondition,
   float* dev_out);
+
 
 #endif

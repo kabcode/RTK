@@ -64,7 +64,7 @@ macro(write_cuda_ptx_kernel_to_file NAMESPACE PTX_FILE GPUFILTER_NAME GPUFILTER_
     "#include \"${NAMESPACE}${GPUFILTER_NAME}.h\"
     namespace ${NAMESPACE}
     {
-    std::string ${GPUFILTER_KERNELNAME}::GetCudaPTXSource()
+	std::string ITK_EXPORT ${GPUFILTER_KERNELNAME}::GetCudaPTXSource()
     {
       std::stringstream s;
       ${${GPUFILTER_KERNELNAME}_SourceString};

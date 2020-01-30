@@ -33,7 +33,7 @@ CudaReduction<TElement>::CudaReduction()
 {
   /*** Prepare Cuda GPU program ***/
   m_CudaKernelManager = CudaKernelManager::New();
-  m_CudaDataManager = NULL;
+  m_CudaDataManager = nullptr;
 }
 template <class TElement>
 CudaReduction<TElement>::~CudaReduction()
