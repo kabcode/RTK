@@ -20,8 +20,6 @@
 
 #include "itkImageToImageMetric.h"
 #include "itkCudaImage.h"
-#include "itkCudaGradientImageFilter.h"
-
 
 namespace itk
 {
