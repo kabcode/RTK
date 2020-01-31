@@ -104,8 +104,8 @@ public:
     using GradientPixelType = CovariantVector< RealType, MovingImageDimension >;
     using GradientImageType = CudaImage< GradientPixelType, MovingImageDimension >;
     using GradientImagePointer = SmartPointer<GradientImageType>;
-    using GradientImageFilterType = CudaGradientImageFilter< MovingImageType, float, float, GradientImageType >;
-    using GradientImageFilterPointer = typename GradientImageFilterType::Pointer;
+    // using GradientImageFilterType = CudaGradientImageFilter< MovingImageType, float, float, GradientImageType >;
+    // using GradientImageFilterPointer = typename GradientImageFilterType::Pointer;
 
     /**  Type for the mask of the fixed image. Only pixels that are "inside"
          this mask will be considered for the computation of the metric */
