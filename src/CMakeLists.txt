@@ -95,6 +95,7 @@ if (RTK_USE_CUDA)
     rtkCudaParkerShortScanImageFilter.cu
     rtkCudaPolynomialGainCorrectionImageFilter.cu
     rtkCudaRayCastBackProjectionImageFilter.cu
+	rtkCudaResampleImageFilter.cu
     rtkCudaSplatImageFilter.cu
     rtkCudaTotalVariationDenoisingBPDQImageFilter.cu
     rtkCudaUtilities.cu

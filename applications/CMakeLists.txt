@@ -89,7 +89,7 @@ add_subdirectory(rtkmaskcollimation)
 add_subdirectory(rtkspectraldenoiseprojections)
 add_subdirectory(rtkprojectionmatrix)
 add_subdirectory(rtkvectorconjugategradient)
-
+add_subdirectory(rtkresampleimagefilter)
 #All the executables below are meant to create RTK ThreeDCircularProjectionGeometry files
 add_subdirectory(rtkvarianobigeometry)
 add_subdirectory(rtkvarianprobeamgeometry)
