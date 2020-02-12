@@ -52,7 +52,7 @@ namespace rtk
       h_in.direction[i][0] = this->GetInput()->GetDirection()[i][0];
     }
     
-    h_in.data = *static_cast<float**>(this->GetInput()->GetCudaDataManager()->GetGPUBufferPointer());
+    h_in.data = *(float**)this->GetInput()->GetCudaDataManager()->GetGPUBufferPointer();
 
     CudaImageProps<ImageDimension> h_out;
     for (unsigned int i = 0; i < ImageDimension; ++i)
@@ -62,7 +62,7 @@ namespace rtk
       h_out.origin[i] = this->GetOutput()->GetOrigin()[i];
       h_out.direction[i][0] = this->GetOutput()->GetDirection()[i][0];
     }
-    h_out.data = *static_cast<float**>(this->GetOutput()->GetCudaDataManager()->GetGPUBufferPointer());
+    h_out.data = *(float**)this->GetOutput()->GetCudaDataManager()->GetGPUBufferPointer();
     CUDA_resample<InputImageDimension>(&h_in, &h_out);
   }
 } // end namespace rtk

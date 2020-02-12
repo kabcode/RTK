@@ -16,6 +16,18 @@
  *
  *=========================================================================*/
 
+#define cudaCheckErrors(msg) \
+    do { \
+        cudaError_t __err = cudaGetLastError(); \
+        if (__err != cudaSuccess) { \
+            fprintf(stderr, "Fatal error: %s (%s at %s:%d)\n", \
+                msg, cudaGetErrorString(__err), \
+                __FILE__, __LINE__); \
+            fprintf(stderr, "*** FAILED - ABORTING\n"); \
+            exit(1); \
+        } \
+    } while (0)
+
 /*****************
  *  rtk #includes *
  *****************/
@@ -45,11 +57,17 @@ __global__ void Copykernel(CudaImageProps<TDimension>* in, CudaImageProps<TDimen
   const auto j = blockIdx.y * blockDim.y + threadIdx.y;
   const auto k = blockIdx.z * blockDim.z + threadIdx.z;
 
-  int sz[TDimension] = out->size;
-  if (i >= sz[0] || j >= sz[1] || k >= sz[2])
+  if(i == 1 && j == 1)
+  {
+    printf("in->size[%i,%i,%i] \n", in->size[0], in->size[1], in->size[2]);
+    printf("out->size[%i,%i,%i]\n", out->size[0], out->size[1], out->size[2]);
+  }
+
+
+  if (i >= in->size[0] || j >= in->size[1] || k >= in->size[2])
     return;
 
-    out->data[i + sz[0] * (j + sz[1] * k)] = in->data[i + sz[0] * (j + sz[1] * k)];
+  out->data[i + out->size[0] * (j + out->size[1] * k)] = in->data[i + in->size[0] * (j + in->size[1] * k)];
 }
 
 template <unsigned int TDimension>
@@ -60,11 +78,28 @@ CUDA_resample(
 )
 {
   CudaImageProps<TDimension>* dev_in;
-  cudaMalloc(dev_in, sizeof(CudaImageProps<TDimension>));
-
-
+  cudaMalloc((void**)&dev_in, sizeof(CudaImageProps<TDimension>));
+  cudaCheckErrors("cudaMalloc dev_in");
+  cudaMemcpy(dev_in, h_in, sizeof(CudaImageProps<TDimension>), cudaMemcpyHostToDevice);
+  cudaCheckErrors("cudaMemcpy dev_in");
+  cudaMemcpy(&(dev_in->data), &(h_in->data), sizeof(float*), cudaMemcpyHostToDevice);
+  cudaCheckErrors("cudaMemcpy dev_in->data");
+ 
   CudaImageProps<TDimension>* dev_out;
-  Copykernel<<<1,32>>>(dev_in, dev_out);
+  cudaMalloc((void**)&dev_out, sizeof(CudaImageProps<TDimension>));
+  cudaCheckErrors("cudaMalloc dev_out");
+  cudaMemcpy(dev_out, h_out, sizeof(CudaImageProps<TDimension>), cudaMemcpyHostToDevice);
+  cudaCheckErrors("cudaMemcpy dev_out");
+  cudaMemcpy(&(dev_out->data), &(h_out->data), sizeof(float*), cudaMemcpyHostToDevice);
+  cudaCheckErrors("cudaMemcpy dev_in->data");
+
+  dim3 dimBlock = dim3(16, 16, 1);
+  dim3 dimGrid = dim3(iDivUp(h_in->size[0], dimBlock.x), iDivUp(h_in->size[1], dimBlock.x));
+
+  Copykernel<<<dimBlock,dimGrid>>>(dev_in, dev_out);
+  cudaDeviceSynchronize();
+  cudaCheckErrors("Copykernel");
+
 }
 
 
