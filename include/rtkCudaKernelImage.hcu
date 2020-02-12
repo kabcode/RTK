@@ -1,0 +1,30 @@
+#ifndef __rtkCudaKernelImage_hcu
+#define __rtkCudaKernelImage_hcu
+
+#include "itkCudaImage.h"
+
+namespace rtk
+{
+
+  template<unsigned int TImageDimension, TPixelType = float>
+  class CudaKernelImage
+  {
+  public:
+    CudaKernelImage();
+    CudaKernelImage(itk::CudaImage<>::Pointer image);
+    ~CudaImageProps() = default;
+
+
+  private:
+    unsigned int size[TDimension];
+    float spacing[TDimension];
+    float origin[TDimension];
+    float direction[TDimension][TDimension];
+    float* data;
+    cudaTextureObject_t texObj_in = 0;
+
+  };
+
+}
+
+#endif

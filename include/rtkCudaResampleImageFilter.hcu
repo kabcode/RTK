@@ -37,14 +37,6 @@ public:
   float* data;
   cudaTextureObject_t texObj_in = 0;
 
-  __device__ __host__ void Print()
-  {
-    for (unsigned int i = 0; i < TDimension; ++i)
-    {
-      std::cout << this->size[i] << " ";
-    }
-    std::cout << std::endl;
-  }
 };
 
 template<unsigned int TInDimension, unsigned int TOutDimension>
