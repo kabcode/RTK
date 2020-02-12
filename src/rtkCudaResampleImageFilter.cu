@@ -51,7 +51,9 @@
 #include <cuda_runtime.h>
 
 template<unsigned int TDimension>
-__global__ void Copykernel(CudaImageProps<TDimension>* in, CudaImageProps<TDimension>* out)
+__global__ void Copykernel(CudaImageProps<TDimension>* in,
+                           CudaImageProps<TDimension>* out,
+                           CudaTransformProps<TDimension, TDimension>* trans)
 {
   const auto i = blockIdx.x * blockDim.x + threadIdx.x;
   const auto j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -61,20 +63,23 @@ __global__ void Copykernel(CudaImageProps<TDimension>* in, CudaImageProps<TDimen
   {
     printf("in->size[%i,%i,%i] \n", in->size[0], in->size[1], in->size[2]);
     printf("out->size[%i,%i,%i]\n", out->size[0], out->size[1], out->size[2]);
+    printf("trans->mat[%f,%f,%f]\n", trans->Matrix[0], trans->Matrix[1], trans->Matrix[2]);
+    printf("trans->off[%f,%f,%f]\n", trans->Offset[0], trans->Offset[1], trans->Offset[2]);
   }
 
 
   if (i >= in->size[0] || j >= in->size[1] || k >= in->size[2])
     return;
 
-  out->data[i + out->size[0] * (j + out->size[1] * k)] = in->data[i + in->size[0] * (j + in->size[1] * k)];
+  out->data[i + out->size[0] * (j + out->size[1] * k)] = tex3D<float>(in->texObj_in,i,j,k);
 }
 
 template <unsigned int TDimension>
 void
 CUDA_resample(
       CudaImageProps<TDimension>* h_in,
-      CudaImageProps<TDimension>* h_out
+      CudaImageProps<TDimension>* h_out,
+      CudaTransformProps<TDimension, TDimension>* h_trans
 )
 {
   CudaImageProps<TDimension>* dev_in;
@@ -84,6 +89,38 @@ CUDA_resample(
   cudaCheckErrors("cudaMemcpy dev_in");
   cudaMemcpy(&(dev_in->data), &(h_in->data), sizeof(float*), cudaMemcpyHostToDevice);
   cudaCheckErrors("cudaMemcpy dev_in->data");
+
+  auto channelDesc = cudaCreateChannelDesc<float>();
+  auto volExtent = make_cudaExtent(h_in->size[0], h_in->size[1], h_in->size[2]);
+  cudaArray* volArray = nullptr;
+  cudaMalloc3DArray((cudaArray**)& volArray, &channelDesc, volExtent);
+  cudaMemcpy3DParms CopyParams = { 0 };
+  CopyParams.srcPtr = make_cudaPitchedPtr((void*)h_in->data, h_in->size[0] * sizeof(float), h_in->size[0], h_in->size[1]);
+  CopyParams.dstArray = volArray;
+  CopyParams.extent = volExtent;
+  CopyParams.kind = cudaMemcpyHostToDevice;
+  cudaMemcpy3D(&CopyParams);
+  CUDA_CHECK_ERROR;
+
+  // Specify texture
+  struct cudaResourceDesc resDesc;
+  memset(&resDesc, 0, sizeof(resDesc));
+  resDesc.resType = cudaResourceTypeArray;
+  resDesc.res.array.array = volArray;
+
+  // Specify texture object parameters
+  struct cudaTextureDesc texDesc;
+  memset(&texDesc, 0, sizeof(texDesc));
+  texDesc.addressMode[0] = cudaAddressModeBorder;
+  texDesc.addressMode[1] = cudaAddressModeBorder;
+  texDesc.addressMode[2] = cudaAddressModeBorder;
+  texDesc.filterMode = cudaFilterModeLinear;
+  texDesc.readMode = cudaReadModeElementType;
+  texDesc.normalizedCoords = 0;
+
+  cudaCreateTextureObject(&h_in->texObj_in, &resDesc, &texDesc, nullptr);
+  cudaMemcpy(&(dev_in->texObj_in), &(h_in->texObj_in), sizeof(cudaTextureObject_t*), cudaMemcpyHostToDevice);
+  cudaCheckErrors("cudaMemcpy dev_in->texObj_in");
  
   CudaImageProps<TDimension>* dev_out;
   cudaMalloc((void**)&dev_out, sizeof(CudaImageProps<TDimension>));
@@ -93,10 +130,16 @@ CUDA_resample(
   cudaMemcpy(&(dev_out->data), &(h_out->data), sizeof(float*), cudaMemcpyHostToDevice);
   cudaCheckErrors("cudaMemcpy dev_in->data");
 
+  CudaTransformProps<TDimension, TDimension>* dev_trans;
+  cudaMalloc((void**)&dev_trans, sizeof(CudaTransformProps<TDimension, TDimension>));
+  cudaCheckErrors("cudaMalloc dev_trans");
+  cudaMemcpy(dev_trans, h_trans, sizeof(CudaTransformProps<TDimension, TDimension>), cudaMemcpyHostToDevice);
+  cudaCheckErrors("cudaMemcpy dev_trans");
+
   dim3 dimBlock = dim3(16, 16, 1);
   dim3 dimGrid = dim3(iDivUp(h_in->size[0], dimBlock.x), iDivUp(h_in->size[1], dimBlock.x));
 
-  Copykernel<<<dimBlock,dimGrid>>>(dev_in, dev_out);
+  Copykernel<<<dimBlock,dimGrid>>>(dev_in, dev_out, dev_trans);
   cudaDeviceSynchronize();
   cudaCheckErrors("Copykernel");
 
@@ -104,5 +147,5 @@ CUDA_resample(
 
 
 
-template void RTK_EXPORT CUDA_resample<2>(CudaImageProps<2>*,CudaImageProps<2>*);
-template void RTK_EXPORT CUDA_resample<3>(CudaImageProps<3>*,CudaImageProps<3>*);
+template void RTK_EXPORT CUDA_resample<2>(CudaImageProps<2>*,CudaImageProps<2>*, CudaTransformProps<2,2>*);
+template void RTK_EXPORT CUDA_resample<3>(CudaImageProps<3>*,CudaImageProps<3>*, CudaTransformProps<3,3>*);

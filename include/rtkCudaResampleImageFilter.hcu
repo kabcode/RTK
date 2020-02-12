@@ -20,6 +20,8 @@
 #define __rtkCudaResampleImageFilter_hcu
 
 #include "RTKExport.h"
+#include "itkMatrix.h"
+#include "itkVector.h"
 
 template< unsigned int TDimension>
 class CudaImageProps
@@ -33,6 +35,7 @@ public:
   float origin[TDimension];
   float direction[TDimension][TDimension];
   float* data;
+  cudaTextureObject_t texObj_in = 0;
 
   __device__ __host__ void Print()
   {
@@ -44,13 +47,41 @@ public:
   }
 };
 
+template<unsigned int TInDimension, unsigned int TOutDimension>
+class CudaTransformProps
+{
+public:
+  CudaTransformProps() = default;
+  ~CudaTransformProps() = default;
+
+  float Matrix[TInDimension*TOutDimension];
+  float Offset[TOutDimension];
+
+  template<class ParameterType>
+  __host__ void SetMatrix(itk::Matrix<ParameterType> InMatrix)
+  {
+    auto vnlmatrix = InMatrix.GetVnlMatrix().data_block();
+    for (auto i = 0; i < InMatrix.GetVnlMatrix().size(); ++i)
+      Matrix[i] = vnlmatrix[i];
+  }
+
+  template<class ParameterType>
+  __host__ void SetOffset(itk::Vector<ParameterType> InOffset)
+  {
+    auto vnlvector = InOffset.GetVnlVector().data_block();
+    for (auto i = 0; i < InOffset.GetVnlVector().size(); ++i)
+      Offset[i] = vnlvector[i];
+  }
+};
+
 
 
 template <unsigned int TDimension>
 void RTK_EXPORT
 CUDA_resample(
-            CudaImageProps<TDimension>* dev_in,
-            CudaImageProps<TDimension>* dev_out
+  CudaImageProps<TDimension>* h_in,
+  CudaImageProps<TDimension>* h_out,
+  CudaTransformProps<TDimension, TDimension>* h_trans
 );
 
 

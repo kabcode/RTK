@@ -26,6 +26,7 @@
 #  include "rtkCudaResampleImageFilter.h"
 #  include "rtkCudaUtilities.hcu"
 #  include "rtkCudaResampleImageFilter.hcu"
+#include "itkMatrixOffsetTransformBase.h"
 
 #  include <itkMacro.h>
 #  include "rtkMacro.h"
@@ -63,7 +64,18 @@ namespace rtk
       h_out.direction[i][0] = this->GetOutput()->GetDirection()[i][0];
     }
     h_out.data = *(float**)this->GetOutput()->GetCudaDataManager()->GetGPUBufferPointer();
-    CUDA_resample<InputImageDimension>(&h_in, &h_out);
+
+    CudaTransformProps<InputImageDimension, ImageDimension> h_trans;
+    if(dynamic_cast<const itk::MatrixOffsetTransformBase<TTransformPrecisionType, InputImageDimension, ImageDimension>*>(this->GetTransform()))
+    {
+      auto transform = dynamic_cast<const itk::MatrixOffsetTransformBase<TTransformPrecisionType, InputImageDimension, ImageDimension>*>(this->GetTransform());
+      h_trans.template SetMatrix<float>(transform->GetMatrix());
+      h_trans.template SetOffset<float>(transform->GetOffset());
+    }
+    
+    
+
+    CUDA_resample<InputImageDimension>(&h_in, &h_out, &h_trans);
   }
 } // end namespace rtk
 

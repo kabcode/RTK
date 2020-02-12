@@ -1,5 +1,5 @@
 #include "rtkCudaResampleImageFilter.h"
-
+#include "itkEuler3DTransform.h"
 #include "itkImageFileReader.h"
 
 /**
@@ -29,11 +29,17 @@ int main(int argc, char* argv[])
   auto ReferenceVolume = FileReaderReference->GetOutput();
   ReferenceVolume->Update();
 
+  auto Transform = itk::Euler3DTransform<float>::New();
+  Transform->SetIdentity();
+  itk::Vector<float> offset;
+  offset.Fill(3.4);
+  Transform->SetOffset(offset);
+
   auto CudaResampleImageFilter = CudaResampleImageFilterType::New();
   CudaResampleImageFilter->SetInput(InputVolume);
   CudaResampleImageFilter->SetReferenceImage(ReferenceVolume);
   CudaResampleImageFilter->UseReferenceImageOn();
-  // CudaResampleImageFilter->Print(std::cout);
+  CudaResampleImageFilter->SetTransform(Transform);
   try
   {
     CudaResampleImageFilter->Update();
