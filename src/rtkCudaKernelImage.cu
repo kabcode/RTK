@@ -15,8 +15,8 @@ namespace rtk
   template<class PixelType, unsigned int TImageDimension>
   void CudaKernelImage<PixelType, TImageDimension>::SetSpacing(std::vector<PixelType> spacing)
   {
-    for (auto i = 0; i < TImageDimension; ++i)
-      this->spacing[i] = spacing[i];
+    //for (auto i = 0; i < TImageDimension; ++i)
+      //this->spacing[i] = spacing[i];
   }
 
 }

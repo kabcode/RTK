@@ -33,10 +33,17 @@ public:
   int size[TDimension];
   float spacing[TDimension];
   float origin[TDimension];
-  float direction[TDimension][TDimension];
+  float direction[TDimension*TDimension];
   float* data;
   cudaTextureObject_t texObj_in = 0;
 
+  template<class ParameterType>
+  __host__ void SetDirection(itk::Matrix<ParameterType> InMatrix)
+  {
+    auto vnlmatrix = InMatrix.GetVnlMatrix().data_block();
+    for (auto i = 0; i < InMatrix.GetVnlMatrix().size(); ++i)
+      direction[i] = vnlmatrix[i];
+  }
 };
 
 template<unsigned int TInDimension, unsigned int TOutDimension>

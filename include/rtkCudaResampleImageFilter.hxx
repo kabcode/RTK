@@ -50,9 +50,8 @@ namespace rtk
       h_in.size[i] = this->GetInput()->GetLargestPossibleRegion().GetSize()[i];
       h_in.spacing[i] = this->GetInput()->GetSpacing()[i];
       h_in.origin[i] = this->GetInput()->GetOrigin()[i];
-      h_in.direction[i][0] = this->GetInput()->GetDirection()[i][0];
     }
-    
+    h_in.template SetDirection<InputImageType::SpacingValueType>(this->GetInput()->GetDirection());
     h_in.data = *(float**)this->GetInput()->GetCudaDataManager()->GetGPUBufferPointer();
 
     CudaImageProps<ImageDimension> h_out;
@@ -61,8 +60,8 @@ namespace rtk
       h_out.size[i] = this->GetOutput()->GetLargestPossibleRegion().GetSize()[i];
       h_out.spacing[i] = this->GetOutput()->GetSpacing()[i];
       h_out.origin[i] = this->GetOutput()->GetOrigin()[i];
-      h_out.direction[i][0] = this->GetOutput()->GetDirection()[i][0];
     }
+    h_out.template SetDirection<InputImageType::SpacingValueType>(this->GetOutputDirection());
     h_out.data = *(float**)this->GetOutput()->GetCudaDataManager()->GetGPUBufferPointer();
 
     CudaTransformProps<InputImageDimension, ImageDimension> h_trans;
