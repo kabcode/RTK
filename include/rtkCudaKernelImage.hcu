@@ -1,29 +1,35 @@
 #ifndef __rtkCudaKernelImage_hcu
 #define __rtkCudaKernelImage_hcu
 
-#include "itkCudaImage.h"
+#include "RTKExport.h"
+#include "rtkCudaUtilities.hcu"
+#include "rtkConfiguration.h"
 
 namespace rtk
 {
 
-  template<unsigned int TImageDimension, TPixelType = float>
-  class CudaKernelImage
+  template<class PixelType, unsigned int TImageDimension>
+  class RTK_EXPORT CudaKernelImage
   {
   public:
-    CudaKernelImage();
-    CudaKernelImage(itk::CudaImage<>::Pointer image);
-    ~CudaImageProps() = default;
+    CudaKernelImage() = default;
+    ~CudaKernelImage() = default;
 
+    __host__ __device__ void Print();
+
+    __host__ void SetSpacing(std::vector<PixelType> spacing);
+    
 
   private:
-    unsigned int size[TDimension];
-    float spacing[TDimension];
-    float origin[TDimension];
-    float direction[TDimension][TDimension];
+    unsigned int size[TImageDimension];
+    std::vector<PixelType> spacing[TImageDimension];
+    float origin[TImageDimension];
+    float direction[TImageDimension * TImageDimension];
     float* data;
     cudaTextureObject_t texObj_in = 0;
 
   };
+
 
 }
 

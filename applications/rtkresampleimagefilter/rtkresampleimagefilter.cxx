@@ -2,6 +2,8 @@
 #include "itkEuler3DTransform.h"
 #include "itkImageFileReader.h"
 
+#include "rtkCudaKernelImage.hcu"
+
 /**
  * \file rtkcudaresampleimagefiltertest.cxx
  *
@@ -14,6 +16,19 @@
 
 int main(int argc, char* argv[])
 {
+
+  // Minitest
+  itk::Image<float, 3>::SpacingType Spacing;
+  Spacing.Fill(2.4f);
+  rtk::CudaKernelImage<float,3> cki;
+  cki.SetSpacing(Spacing.GetDataPointer());
+
+  cki.Print();
+
+
+
+
+  /*
   constexpr unsigned int Dimension = 3;
   using PixelType = float;
   using ImageType = itk::CudaImage<PixelType, Dimension>;
@@ -63,7 +78,7 @@ int main(int argc, char* argv[])
     EO.Print(std::cout);
     return EXIT_FAILURE;
   }
-
+  */
   std::cout << "\n\nTest PASSED! " << std::endl;
 
   return EXIT_SUCCESS;
