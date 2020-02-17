@@ -52,6 +52,7 @@ namespace rtk
       h_in.origin[i] = this->GetInput()->GetOrigin()[i];
     }
     h_in.template SetDirection<InputImageType::SpacingValueType>(this->GetInput()->GetDirection());
+    h_in.ComputePointToIndexMatrix<InputImageType::SpacingValueType>(this->GetInput()->GetDirection(), this->GetInput()->GetSpacing());
     h_in.data = *(float**)this->GetInput()->GetCudaDataManager()->GetGPUBufferPointer();
 
     CudaImageProps<ImageDimension> h_out;

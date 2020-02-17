@@ -22,6 +22,7 @@
 #include "RTKExport.h"
 #include "itkMatrix.h"
 #include "itkVector.h"
+#include "itkMacro.h"
 
 template< unsigned int TDimension>
 class CudaImageProps
@@ -34,6 +35,7 @@ public:
   float spacing[TDimension];
   float origin[TDimension];
   float direction[TDimension*TDimension];
+  float pointToIndexMatrix[TDimension*TDimension];
   float* data;
   cudaTextureObject_t texObj_in = 0;
 
@@ -41,9 +43,36 @@ public:
   __host__ void SetDirection(itk::Matrix<ParameterType> InMatrix)
   {
     auto vnlmatrix = InMatrix.GetVnlMatrix().data_block();
-    for (auto i = 0; i < InMatrix.GetVnlMatrix().size(); ++i)
+    for (unsigned int i = 0; i < InMatrix.GetVnlMatrix().size(); ++i)
       direction[i] = vnlmatrix[i];
   }
+
+  template<class ParameterType>
+  __host__ void ComputePointToIndexMatrix(itk::Matrix<ParameterType> InMatrix,
+                                          itk::FixedArray<ParameterType> InVector)
+  {
+    itk::Matrix<ParameterType> spacing;
+    for (unsigned int i = 0; i < TDimension; i++)
+    {
+      if (InVector[i] == 0.0)
+      {
+        itkGenericExceptionMacro("A spacing of 0 is not allowed,");
+      }
+      spacing[i][i] = InVector[i];
+    }
+
+    if (vnl_determinant(InMatrix.GetVnlMatrix()) == 0.0)
+    {
+      itkGenericExceptionMacro(<< "Bad direction, determinant is 0.");
+    }
+
+     auto IndexToPhysicalPoint = InMatrix * spacing;
+     auto PhysicalPointToIndex = IndexToPhysicalPoint.GetInverse();
+     auto vnlmatrix = PhysicalPointToIndex.data_block();
+     for (unsigned int i = 0; i < TDimension*TDimension; ++i)
+       pointToIndexMatrix[i] = vnlmatrix[i];
+  }
+
 };
 
 template<unsigned int TInDimension, unsigned int TOutDimension>

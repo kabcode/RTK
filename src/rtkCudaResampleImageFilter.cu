@@ -28,24 +28,24 @@
         } \
     } while (0)
 
-/*****************
- *  rtk #includes *
- *****************/
+ /*****************
+  *  rtk #includes *
+  *****************/
 #include "rtkCudaUtilities.hcu"
 #include "rtkConfiguration.h"
 #include "rtkCudaResampleImageFilter.hcu"
 
-/*****************
- *  C   #includes *
- *****************/
+  /*****************
+   *  C   #includes *
+   *****************/
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
 
-/*****************
- * CUDA #includes *
- *****************/
+   /*****************
+    * CUDA #includes *
+    *****************/
 #include <cuda.h>
 #include <cublas_v2.h>
 #include <cuda_runtime.h>
@@ -53,23 +53,24 @@
 template<unsigned int TDimension>
 inline __device__ void multiplyMatVec(float* Mat, float* Vec, float* Return)
 {
+  float tmp[TDimension];
   #pragma unroll
-  for(unsigned int i = 0; i < TDimension; ++i)
+  for (unsigned int i = 0; i < TDimension; ++i)
   {
     #pragma unroll
-    Return[i] = 0;
-    for(unsigned int j = 0; j < TDimension; ++j)
+    for (unsigned int j = 0; j < TDimension; ++j)
     {
-      Return[i] =+ Mat[j + TDimension * i] * Vec[j];
+      tmp[i] =+ Mat[j * TDimension + i] * Vec[j];
     }
+    Return[i] = tmp[i];
   }
 }
 
 template<unsigned int TDimension>
 inline __device__ void multiplyScalarVec(float scalar, float* Vec, float* Return)
 {
-  #pragma unroll
-  for(unsigned int i = 0; i < TDimension; ++i)
+#pragma unroll
+  for (unsigned int i = 0; i < TDimension; ++i)
   {
     Return[i] = scalar * Vec[i];
   }
@@ -78,7 +79,7 @@ inline __device__ void multiplyScalarVec(float scalar, float* Vec, float* Return
 template<unsigned int TDimension>
 inline __device__ void cwiseVecVec(float* Vec1, float* Vec2, float* Return)
 {
-  #pragma unroll
+#pragma unroll
   for (unsigned int i = 0; i < TDimension; ++i)
   {
     Return[i] = Vec1[i] * Vec2[i];
@@ -105,74 +106,91 @@ inline __device__ void subVecVec(float* Vec1, float* Vec2, float* Return)
   }
 }
 
-template<unsigned int TDimension>
-inline __device__ void flattenMat(float* Mat)
-{
-#pragma unroll
-  for (unsigned int i = 0; i < TDimension; ++i)
-  {
-    
-  }
-}
 
 template<unsigned int TDimension>
 __global__ void Copykernel(CudaImageProps<TDimension>* in,
-                           CudaImageProps<TDimension>* out,
-                           CudaTransformProps<TDimension, TDimension>* trans)
+  CudaImageProps<TDimension>* out,
+  CudaTransformProps<TDimension, TDimension>* trans)
 {
   const auto i = blockIdx.x * blockDim.x + threadIdx.x;
   const auto j = blockIdx.y * blockDim.y + threadIdx.y;
   const auto k = blockIdx.z * blockDim.z + threadIdx.z;
 
-  if(i == 1 && j == 1)
-  {
-    printf("in->size[%i,%i,%i] \n", in->size[0], in->size[1], in->size[2]);
-    printf("out->size[%i,%i,%i]\n", out->size[0], out->size[1], out->size[2]);
-    printf("in->direction\n[%f,%f,%f]\n[%f,%f,%f]\n[%f,%f,%f]\n",
-      in->direction[0], in->direction[1], in->direction[2],
-      in->direction[3], in->direction[4], in->direction[5],
-      in->direction[6], in->direction[7], in->direction[8]);
-    printf("trans->mat\n[%f,%f,%f]\n[%f,%f,%f]\n[%f,%f,%f]\n",
-      trans->Matrix[0], trans->Matrix[1], trans->Matrix[2],
-      trans->Matrix[3], trans->Matrix[4], trans->Matrix[5],
-      trans->Matrix[6], trans->Matrix[7], trans->Matrix[8]);
-    printf("trans->off[%f,%f,%f]\n", trans->Offset[0], trans->Offset[1], trans->Offset[2]);
-  }
+
 
 
   if (i >= out->size[0] || j >= out->size[1] || k >= out->size[2])
     return;
-
+  if (i == 100 && j == 50)
+  {
+    printf("in->direction\n[%f,%f,%f]\n[%f,%f,%f]\n[%f,%f,%f]\n",
+      out->direction[0], out->direction[1], out->direction[2],
+      out->direction[3], out->direction[4], out->direction[5],
+      out->direction[6], out->direction[7], out->direction[8]);
+  }
   float idx_out[] = { i*1.0f, j*1.0f, k*1.0f };
   // compute physical coordinates for output pixel
   float physicalOut[TDimension];
   cwiseVecVec<TDimension>(out->spacing, idx_out, physicalOut);
-  multiplyMatVec<TDimension>(out->direction, physicalOut, physicalOut);
-  addVecVec<TDimension>(out->origin, physicalOut, physicalOut);
+  if (i == 100 && j == 50) printf("physicalOut[%f,%f,%f]\n", physicalOut[0], physicalOut[1], physicalOut[2]);
+  float physicalOut2[TDimension];
+  float tmp[TDimension];
+#pragma unroll
+  for (unsigned int i = 0; i < TDimension; ++i)
+  {
+    tmp[i] = 0;
+#pragma unroll
+    for (unsigned int j = 0; j < TDimension; ++j)
+    {
+      tmp[i] =+ out->direction[j * TDimension + i] * physicalOut[j];
+    }
+    physicalOut2[i] = tmp[i];
+  }
+  //multiplyMatVec<TDimension>(out->direction, physicalOut, physicalOut2);
+  if (i == 100 && j == 50) printf("physicalOut2[%f,%f,%f]\n", physicalOut2[0], physicalOut2[1], physicalOut2[2]);
+  addVecVec<TDimension>(out->origin, physicalOut2, physicalOut);
+  if (i == 100 && j == 50) printf("physicalOut[%f,%f,%f]\n", physicalOut[0], physicalOut[1], physicalOut[2]);
 
   // apply inverse transform towards input image
 
   // compute indices for physical coordinates
   float idx_in[] = { 0.f,0.f,0.f };
   subVecVec<TDimension>(physicalOut, in->origin, idx_in);
-  float transformToIndexMatrix[TDimension*TDimension];
-  multiplyMatVec<TDimension>(in->direction, in->spacing, transformToIndexMatrix);
-  // -> Get somehow the inverse of this product (or use the computed physicalPointToIndex matrix from ImageBase.h)
-
-  if (i == 1 && j == 1)
+  if (i == 100 && j == 50) printf("idx_in[%f,%f,%f]\n", idx_in[0], idx_in[1], idx_in[2]);
+  multiplyMatVec<TDimension>(in->pointToIndexMatrix, idx_in, idx_in);
+  if (i == 100 && j == 50) printf("idx_in[%f,%f,%f]\n", idx_in[0], idx_in[1], idx_in[2]);
+  /*
+  if (i == 100 && j == 50)
   {
     printf("physicalOut[%f,%f,%f]\n", physicalOut[0], physicalOut[1], physicalOut[2]);
-  }
+    printf("indexIn[%f,%f,%f]\n", idx_in[0], idx_in[1], idx_in[2]);
+    printf("in->size[%i,%i,%i] \n", in->size[0], in->size[1], in->size[2]);
+    printf("out->size[%i,%i,%i]\n", out->size[0], out->size[1], out->size[2]);
+    printf("in->direction\n[%f,%f,%f]\n[%f,%f,%f]\n[%f,%f,%f]\n",
+      in->direction[0], in->direction[1], in->direction[2],
+      in->direction[3], in->direction[4], in->direction[5],
+      in->direction[6], in->direction[7], in->direction[8]);
+    printf("in->p2i\n[%f,%f,%f]\n[%f,%f,%f]\n[%f,%f,%f]\n",
+      in->pointToIndexMatrix[0], in->pointToIndexMatrix[1], in->pointToIndexMatrix[2],
+      in->pointToIndexMatrix[3], in->pointToIndexMatrix[4], in->pointToIndexMatrix[5],
+      in->pointToIndexMatrix[6], in->pointToIndexMatrix[7], in->pointToIndexMatrix[8]);
+    printf("trans->mat\n[%f,%f,%f]\n[%f,%f,%f]\n[%f,%f,%f]\n",
+      trans->Matrix[0], trans->Matrix[1], trans->Matrix[2],
+      trans->Matrix[3], trans->Matrix[4], trans->Matrix[5],
+      trans->Matrix[6], trans->Matrix[7], trans->Matrix[8]);
+    printf("trans->off[%f,%f,%f]\n", trans->Offset[0], trans->Offset[1], trans->Offset[2]);
 
-  out->data[i + out->size[0] * (j + out->size[1] * k)] = tex3D<float>(in->texObj_in,i,j,k);
+  }
+  */
+  out->data[i + out->size[0] * (j + out->size[1] * k)] = tex3D<float>(in->texObj_in, idx_in[0], idx_in[1], idx_in[2]);
 }
 
 template <unsigned int TDimension>
 void
 CUDA_resample(
-      CudaImageProps<TDimension>* h_in,
-      CudaImageProps<TDimension>* h_out,
-      CudaTransformProps<TDimension, TDimension>* h_trans
+  CudaImageProps<TDimension>* h_in,
+  CudaImageProps<TDimension>* h_out,
+  CudaTransformProps<TDimension, TDimension>* h_trans
 )
 {
   CudaImageProps<TDimension>* dev_in;
@@ -180,15 +198,15 @@ CUDA_resample(
   cudaCheckErrors("cudaMalloc dev_in");
   cudaMemcpy(dev_in, h_in, sizeof(CudaImageProps<TDimension>), cudaMemcpyHostToDevice);
   cudaCheckErrors("cudaMemcpy dev_in");
-/*
-  float* h_in_dir;
-  cudaMalloc((void**)&h_in_dir, sizeof(float)*TDimension*TDimension);
-  cudaCheckErrors("cudaMalloc d_in_dir");
-  cudaMemcpy(h_in_dir, &h_in->direction, sizeof(float)*TDimension*TDimension, cudaMemcpyHostToDevice);
-  cudaCheckErrors("cudaMemcpy h_in_dir");
-  cudaMemcpy(&(dev_in->direction), &h_in_dir, sizeof(float*), cudaMemcpyHostToDevice);
-  cudaCheckErrors("cudaMemcpy dev_in->dir");
-  */
+  /*
+    float* h_in_dir;
+    cudaMalloc((void**)&h_in_dir, sizeof(float)*TDimension*TDimension);
+    cudaCheckErrors("cudaMalloc d_in_dir");
+    cudaMemcpy(h_in_dir, &h_in->direction, sizeof(float)*TDimension*TDimension, cudaMemcpyHostToDevice);
+    cudaCheckErrors("cudaMemcpy h_in_dir");
+    cudaMemcpy(&(dev_in->direction), &h_in_dir, sizeof(float*), cudaMemcpyHostToDevice);
+    cudaCheckErrors("cudaMemcpy dev_in->dir");
+    */
   cudaMemcpy(&(dev_in->data), &(h_in->data), sizeof(float*), cudaMemcpyHostToDevice);
   cudaCheckErrors("cudaMemcpy dev_in->data");
 
@@ -223,7 +241,7 @@ CUDA_resample(
   cudaCreateTextureObject(&h_in->texObj_in, &resDesc, &texDesc, nullptr);
   cudaMemcpy(&(dev_in->texObj_in), &(h_in->texObj_in), sizeof(cudaTextureObject_t*), cudaMemcpyHostToDevice);
   cudaCheckErrors("cudaMemcpy dev_in->texObj_in");
- 
+
   CudaImageProps<TDimension>* dev_out;
   cudaMalloc((void**)&dev_out, sizeof(CudaImageProps<TDimension>));
   cudaCheckErrors("cudaMalloc dev_out");
@@ -241,7 +259,7 @@ CUDA_resample(
   dim3 dimBlock = dim3(16, 16, 1);
   dim3 dimGrid = dim3(iDivUp(h_in->size[0], dimBlock.x), iDivUp(h_in->size[1], dimBlock.x));
 
-  Copykernel<<<dimBlock,dimGrid>>>(dev_in, dev_out, dev_trans);
+  Copykernel << <dimBlock, dimGrid >> > (dev_in, dev_out, dev_trans);
   cudaDeviceSynchronize();
   cudaCheckErrors("Copykernel");
 
@@ -249,5 +267,5 @@ CUDA_resample(
 
 
 
-template void RTK_EXPORT CUDA_resample<2>(CudaImageProps<2>*,CudaImageProps<2>*, CudaTransformProps<2,2>*);
-template void RTK_EXPORT CUDA_resample<3>(CudaImageProps<3>*,CudaImageProps<3>*, CudaTransformProps<3,3>*);
+template void RTK_EXPORT CUDA_resample<2>(CudaImageProps<2>*, CudaImageProps<2>*, CudaTransformProps<2, 2>*);
+template void RTK_EXPORT CUDA_resample<3>(CudaImageProps<3>*, CudaImageProps<3>*, CudaTransformProps<3, 3>*);
